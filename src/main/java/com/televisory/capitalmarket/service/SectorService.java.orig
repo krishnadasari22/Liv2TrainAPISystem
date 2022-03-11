@@ -1,0 +1,178 @@
+package com.televisory.capitalmarket.service;
+
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.apache.log4j.Logger;
+import org.dozer.DozerBeanMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
+
+import com.televisory.capitalmarket.dao.SectorRepository;
+import com.televisory.capitalmarket.dto.BalanceModelDTO;
+import com.televisory.capitalmarket.dto.IndustryFinancialDataDTO;
+import com.televisory.capitalmarket.entities.cm.IndustryMetaData;
+import com.televisory.capitalmarket.entities.cm.TicsIndustry;
+import com.televisory.capitalmarket.entities.cm.TicsSector;
+import com.televisory.capitalmarket.entities.industry.CountryList;
+import com.televisory.capitalmarket.util.CMStatic;
+import com.televisory.capitalmarket.util.DateUtil;
+
+@Service
+public class SectorService {
+	Logger _log = Logger.getLogger(SectorService.class);
+
+	@Autowired
+	SectorRepository industryRepository;
+	
+	@Autowired
+	DozerBeanMapper dozerBeanMapper;
+	
+	@Autowired
+	DateUtil dateUtil;
+
+	public List<CountryList> findAllIndustryCountries() {
+		return industryRepository.findAllIndustryCountries();
+	}
+	
+	public List<CountryList> findAllIndustryCountriesbySector(String ticsSectorCode) {
+		return industryRepository.findAllIndustryCountriesbySector(ticsSectorCode);
+	}
+	
+	public List<CountryList> findAllIndustryCountriesbyTicsIndustry(String ticsIndustryCode) {
+		return industryRepository.findAllIndustryCountriesbyTicsIndustry(ticsIndustryCode);
+	}
+	
+	
+	@Cacheable(cacheNames="CM_DAYS_CACHE",unless="#result.size()==0")
+	public List<IndustryFinancialDataDTO> getIDSectorData(String periodType, String ticsSectorCode, String countryId, String params, Date startDate, Date endDate, String currencyCode, Integer month){
+		List<IndustryFinancialDataDTO> industryFinancialDataDTO =null;
+		if(periodType.equalsIgnoreCase(CMStatic.PERIODICITY_YEARLY)) {
+			industryFinancialDataDTO = industryRepository.getIDSectorDataYearly(ticsSectorCode, countryId, params, startDate, endDate, currencyCode, month);
+		}
+		else {
+			industryFinancialDataDTO = industryRepository.getIDSectorDataQuarterly(ticsSectorCode, countryId, params, startDate, endDate, currencyCode);
+		}
+		industryFinancialDataDTO.sort(Comparator.comparing(IndustryFinancialDataDTO::getPeriod));
+		return industryFinancialDataDTO;
+	}
+	
+	@Cacheable(cacheNames="CM_DAYS_CACHE",unless="#result.size()==0")
+	public List<IndustryFinancialDataDTO> getIDIndustryData(String periodType, String ticsSectorCode, String ticsIndustryCode, String countryId, String params, Date startDate, Date endDate, String currencyCode, Integer month) {
+		
+		List<IndustryFinancialDataDTO> industryFinancialDataDTO =null;
+		if(periodType.equalsIgnoreCase(CMStatic.PERIODICITY_YEARLY)) {
+			industryFinancialDataDTO = industryRepository.getIDIndustryDataYearly(ticsSectorCode, ticsIndustryCode, countryId, params, startDate, endDate, currencyCode, month);
+		}
+		else {
+			industryFinancialDataDTO = industryRepository.getIDIndustryDataQuarterly(ticsSectorCode, ticsIndustryCode, countryId, params, startDate, endDate, currencyCode);
+		}
+		
+<<<<<<< HEAD
+		industryFinancialDataDTO=industryFinancialDataDTO.stream().map(industryData -> {
+=======
+		_log.info(industryFinancialDataDTO.size());
+		
+		industryFinancialDataDTO = industryFinancialDataDTO.stream().map(industryData -> {
+			
+>>>>>>> companyPage
+			if(industryData.getCountryId()==null){
+				industryData.setCountryId(0);
+				industryData.setCountryName("World");
+			}
+			return industryData;
+		}).collect(Collectors.toList());
+		
+		industryFinancialDataDTO.sort(Comparator.comparing(IndustryFinancialDataDTO::getPeriod));
+		
+		return industryFinancialDataDTO;
+	
+	}
+	
+	@Cacheable(cacheNames="CM_DAYS_CACHE",unless="#result.size()==0")
+	public List<IndustryFinancialDataDTO> getIDCompanyData(String periodType, String ticsIndustryCode, String companyId, String countryId, String params, Date startDate, Date endDate, String currencyCode, Integer month) {
+		_log.info(" periodType "+periodType+" ticsIndustryCode "+ticsIndustryCode+" companyId "+companyId+" countryId "+countryId+" params "+params+" startDate "+startDate+" endDate "+endDate +" currencyCode: "+ currencyCode);
+		if(periodType.equalsIgnoreCase(CMStatic.PERIODICITY_YEARLY)) {
+			return industryRepository.getIDCompanyDataYearly(ticsIndustryCode, companyId, countryId, params, startDate, endDate, currencyCode, month);
+		}
+		else {
+			return industryRepository.getIDCompanyDataQuarterly(ticsIndustryCode, companyId, countryId, params, startDate, endDate, currencyCode);
+		}
+	}
+	
+	public List<TicsSector> getAllSectors(){
+		return industryRepository.getAllSectors();
+	}
+	
+		
+	public List<TicsIndustry> getTicsIndustryByTicsSectorCode(String ticsSectorCode){
+		return industryRepository.getTicsIndustryByTicsSectorCode(ticsSectorCode);
+	}
+	
+	
+	public List<TicsIndustry> getFactsetIndustry(String ticsIndustryCode) {
+		return industryRepository.getIndustryByTicsIndustryCode(ticsIndustryCode);
+	}
+	
+	/*public List<IndustryFinancialDataDTO> getIndustryCountryByField(String fieldName,String periodType,Date startDate, Date endDate,String ticsSectorCode,String ticsIndustryCode,String countryCode, Integer recCount){
+		return industryRepository.getIndustryCountryByField(fieldName,periodType,startDate,endDate,ticsSectorCode,ticsIndustryCode,countryCode, recCount);
+	}*/
+
+	public List<TicsIndustry> getTicsIndustryByTicsSectorCode() {
+		return industryRepository.getTicsIndustryByTicsSectorCode();
+	}
+
+	public List<TicsIndustry> getTicsIndustryByFactsetIndustry(String factsetIndustry) {
+		return industryRepository.getTicsIndustryByFactsetIndustry(factsetIndustry);
+	}
+
+	public List<TicsIndustry> getTicsIndustryByTicsSectorCode(String ticsSectorCode, String factsetIndustry) {
+		return industryRepository.getTicsIndustryByTicsSectorCode(ticsSectorCode,factsetIndustry);
+	}
+
+	public List<BalanceModelDTO> getIndustryFinancialParameter(String industryType) {
+		return industryRepository.getIndustryFinancialParameter(industryType);
+	}
+	
+	public List<BalanceModelDTO> getIndustryFinancialParameter(String industryType, String type,Integer watchlistFlag) {
+		
+		if(type==null){
+			return industryRepository.getIndustryFinancialParameter(industryType, watchlistFlag);
+		}else{
+			return industryRepository.getIndustryFinancialParameter(industryType,type, watchlistFlag);
+		}
+		
+	}
+	
+	/*public List<IndustryFinancialDataDTO> getIndustryCompanyData(String fieldName, String periodType, Date startDate, Date endDate, String ticsSectorCode, String ticsIndustryCode, String countryCode) {
+		return industryRepository.getIndustryCompanyData(fieldName, periodType, startDate, endDate, ticsSectorCode, ticsIndustryCode, countryCode);
+	}*/
+	
+	public List<TicsIndustry> getIndustryByIdList(List<String> customIndustryIds) {
+		return industryRepository.getIndustryByIdList(customIndustryIds);
+	}
+	
+	public String getCountryDomocileCode(String countryId) {
+		return industryRepository.getCountryDomocileCode(countryId);
+	}
+	
+	public List<IndustryMetaData>getPeriodByTicsIndustryNCountryCode(String ticsIndustryCode, String countryCode) {
+		return industryRepository.getPeriodByTicsIndustryNCountryCode(ticsIndustryCode, countryCode);
+	}
+
+	public List<BalanceModelDTO> getIndustryFinancialParameter(String industryType, String financialType) {
+		
+		if(financialType==null){
+			return industryRepository.getIndustryFinancialParameter(industryType);
+		}else{
+			return industryRepository.getIndustryFinancialParameter(industryType, financialType);
+		}
+	}
+
+	public List<TicsIndustry> getTicsIndustryByCountryCode(String countryList) {
+		return industryRepository.getTicsIndustryByCountryCode(countryList);
+	}
+}

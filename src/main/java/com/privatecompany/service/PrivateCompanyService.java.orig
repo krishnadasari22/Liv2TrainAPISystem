@@ -1,0 +1,277 @@
+package com.privatecompany.service;
+
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeMap;
+
+import org.apache.log4j.Logger;
+<<<<<<< HEAD
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+=======
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.privatecompany.dao.PrivateCompanyRepository;
+import com.privatecompany.dto.PrivateCompanyDTO;
+>>>>>>> 9b2f33663d8d6bdc80eb6eb31edd1939d4fa9840
+import com.televisory.capitalmarket.dto.CompanyDTO;
+import com.televisory.capitalmarket.model.DownloadRequest;
+import com.televisory.capitalmarket.model.IndustryMonitorRequest;
+import com.televisory.capitalmarket.service.ExcelReportService;
+import com.televisory.capitalmarket.service.GenerateExcelStyle;
+import com.televisory.capitalmarket.util.CMStatic;
+
+
+@Service
+public class PrivateCompanyService {
+	
+	@Autowired
+	ExcelReportService excelReportService;
+	
+	Logger _log = Logger.getLogger(PrivateCompanyService.class);
+	
+	@Autowired
+	PrivateCompanyRepository pcRepository;
+
+	public List<CompanyDTO> getPrivateCompanies(String searchCriteria,
+			Integer resultCount, Integer countryIds, String companyIds,
+			Boolean excludeDuplicateFlag, List<String> userCountryList) {
+		return null;
+	}
+	
+	
+	
+	public HSSFWorkbook createExcelReport(IndustryMonitorRequest industryMonitorRequest) throws JsonGenerationException, JsonMappingException, IOException {
+		
+		HSSFWorkbook workbook = new HSSFWorkbook();
+		GenerateExcelStyle ges =new GenerateExcelStyle(workbook);
+		
+		//////////////// Change this from the company name
+		String sheetName = "Sheet1";
+
+		HSSFSheet sheet = workbook.createSheet(sheetName.replaceAll(CMStatic.SPECIAL_CHAR_REGEX, ""));
+		ges.setBackgroundOnSheet(sheet, 0, CMStatic.SHEET_MAX_ROW, CMStatic.SHEET_MAX_COLUMN); 
+		int row = 0;
+		Row r = sheet.getRow(row);
+		Cell cell = r.createCell(1);
+
+		excelReportService.createLogo(cell, sheet, workbook, ges);		
+
+		row++;
+		r = sheet.getRow(row);
+
+		Map<String,String> periodMap = new TreeMap<String,String>();
+		Map<String, List<Double>> dataSet = new TreeMap<String, List<Double>>();
+		Map<String, SortedSet<String>> distinctCompany = new TreeMap<String,SortedSet<String>>();
+		Map<String, Integer> compYrCount = new TreeMap<String,Integer>();
+		/*for (Iterator<EquityRequest> equityRequests = downloadRequest.getEquity().iterator(); equityRequests.hasNext();) {
+			EquityRequest equityRequest =  equityRequests.next();	
+			SortedSet<String> distinctIndex = new TreeSet<String>();
+			int maxcount=0;
+			if(equityRequest.getDataType().equals(CMStatic.DATA_TYPE_BETA)){
+				for(Iterator<BetaData> betaDatas = equityRequest.getBetaDatas().iterator(); betaDatas.hasNext();) {
+					BetaData betaData = betaDatas.next();
+					//dataType--Country
+					String key = betaData.getIndexId()+"--"+equityRequest.getCode()+"--"+equityRequest.getExchange();
+					dataSet.put(key, betaData.getData());	
+					if(betaData.getData()!=null && betaData.getData().size()>maxcount) {
+						maxcount = betaData.getData().size();
+					}
+					if(betaData.getData()!=null && betaData.getData().size()!=0)
+						distinctIndex.add(betaData.getIndexId()+"|"+betaData.getIndexName());
+				}
+				String compName = equityRequest.getName();
+				distinctCompany.put(equityRequest.getCode()+"|"+compName+"|"+equityRequest.getExchange(), distinctIndex);
+				compYrCount.put(equityRequest.getCode()+"|"+compName+"|"+equityRequest.getExchange(), maxcount);
+				periodMap.put(equityRequest.getCode()+"|"+compName+"|"+equityRequest.getExchange(), equityRequest.getPeriodicity());
+			}
+		}
+		createCompanyBetaTable(row+4, sheet, ges, dataSet, distinctCompany, compYrCount, periodMap);		
+*/
+		
+		
+		return null;
+	}
+	
+	
+	private void createPrivateCompanySheet(DownloadRequest downloadRequest, String sheetName, HSSFWorkbook workbook,
+			GenerateExcelStyle ges) {
+
+		HSSFSheet sheet = workbook.createSheet(sheetName.replaceAll(CMStatic.SPECIAL_CHAR_REGEX, ""));
+		ges.setBackgroundOnSheet(sheet, 0, CMStatic.SHEET_MAX_ROW, CMStatic.SHEET_MAX_COLUMN); 
+
+		int row = 0;
+		Row r = sheet.getRow(row);
+		Cell cell = r.createCell(1);
+
+		excelReportService.createLogo(cell, sheet, workbook, ges);		
+
+		row++;
+		r = sheet.getRow(row);
+
+		LinkedHashSet<String> periodMap = new LinkedHashSet<>();
+		Map<String, Double> dataSet = new HashMap<>();
+		HashSet<String> distinctCommodity =new HashSet<>();
+		HashMap<String,String> unitMap =new HashMap<>();
+
+		downloadRequest.getCommodity().getCommodityData().forEach(commodityDataObject -> {
+			DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+
+			String period = dateFormat.format(commodityDataObject.getPeriod());
+
+			dataSet.put(commodityDataObject.getSymbol()+"::"+period, commodityDataObject.getClose());
+			distinctCommodity.add(commodityDataObject.getSymbol()+"::"+commodityDataObject.getName());
+			periodMap.add(period);
+
+			unitMap.put(commodityDataObject.getSymbol(),commodityDataObject.getUnit());
+
+		});
+
+		createPrivateCompanyTable(row+4, sheet, ges, dataSet, distinctCommodity, periodMap,unitMap);		
+	}
+	
+	
+	private void createPrivateCompanyTable(int row, HSSFSheet sheet, GenerateExcelStyle ge, Map<String, Double> dataSet,
+			HashSet<String> distinctCommodity, LinkedHashSet<String> periodMap,HashMap<String,String> unitMap) {
+
+		Row r;
+
+		Cell cell;
+		int cellIndex=1;
+		int oc = cellIndex;
+
+		int or = row;
+
+		int maxRow = CMStatic.SHEET_MAX_ROW;
+		int addRow = CMStatic.SHEET_ADD_ROW;
+
+		int minRow = 0;
+
+		if(row > maxRow-1) {
+			minRow = maxRow;
+			maxRow = maxRow+addRow;
+			ge.setBackgroundOnSheet(sheet, minRow, maxRow, CMStatic.SHEET_MAX_COLUMN);
+		}
+
+		if(periodMap.isEmpty()){
+
+			r = sheet.getRow( row );
+			cell = r.getCell(cellIndex);
+			cell.setCellValue(CMStatic.NO_DATA_FOUND);
+			cell.setCellStyle(ge.BLUE_FONT_WITHOUT_BACKGROUND);
+			cellIndex++;
+
+		}else{
+			r = sheet.getRow(row);
+
+			cell = r.getCell(cellIndex);
+
+			sheet.setColumnWidth(cellIndex, (short) (17 * 500));
+
+			try {
+				ge.mergeCells(sheet, row, row + 1, cellIndex, cellIndex, true);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			cell.setCellValue("Period");
+			cell.setCellStyle(ge.HEADER_WHITE_TEXT_DARK_BLUE_BACKGROUND);
+			cellIndex++;
+
+			for (String commodityName : distinctCommodity) {
+				// CREATE HEADER
+
+				cell = r.getCell(cellIndex);
+				sheet.setColumnWidth(cellIndex, (short) (17 * 500));
+				try {
+					ge.mergeCells(sheet, row, row + 1, cellIndex, cellIndex, true);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				cell.setCellValue(commodityName.split("::")[1] + " ( " +unitMap.get(commodityName.split("::")[0])+" )");
+				cell.setCellStyle(ge.HEADER_WHITE_TEXT_DARK_BLUE_BACKGROUND);
+				cellIndex++;
+				// END HEADER
+			}
+
+			row++;
+
+			int periodMapCounter=0;
+
+			for (String commodityDate : periodMap) {	
+
+				cellIndex=1;
+
+				if(sheet.getRow(row)==null){
+					ge.setBackgroundOnSheet(sheet, row, row+1, CMStatic.SHEET_MAX_COLUMN);
+				}
+
+				r = sheet.getRow(row);
+
+				cell = r.getCell(cellIndex);
+
+				sheet.setColumnWidth(cellIndex, (short) (17 * 500));
+
+				cell.setCellValue(commodityDate);
+
+				cellIndex++;
+
+				if(periodMap.size()-1==periodMapCounter){
+					cell.setCellStyle(ge.BORDER_BOTTOM_LEFT_RIGHT_ALIGN_RIGHT);	
+				}else{
+					cell.setCellStyle(ge.BORDER_LEFT_RIGHT_ALIGN_RIGHT);
+				}
+
+				for (String commodityName : distinctCommodity) {
+
+					r = sheet.getRow(row);
+
+					cell = r.getCell(cellIndex);
+
+					sheet.setColumnWidth(cellIndex, (short) (17 * 500));
+
+					if(dataSet.get(commodityName.split("::")[0]+"::"+commodityDate)!=null){
+						cell.setCellValue(dataSet.get(commodityName.split("::")[0]+"::"+commodityDate));
+
+						if(periodMap.size()-1==periodMapCounter ){
+							cell.setCellStyle(excelReportService.getNumberFormatStyle(dataSet.get(commodityName.split("::")[0]+"::"+commodityDate), "", ge, true));
+						}else{
+							cell.setCellStyle(excelReportService.getNumberFormatStyle(dataSet.get(commodityName.split("::")[0]+"::"+commodityDate), "", ge, false));
+						}	
+					}else{
+						cell.setCellValue("-");			
+						if(periodMap.size()-1==periodMapCounter){
+							cell.setCellStyle(ge.BORDER_BOTTOM_LEFT_RIGHT_ALIGN_RIGHT);	
+						}else{
+							cell.setCellStyle(ge.BORDER_LEFT_RIGHT_ALIGN_RIGHT);
+						}	
+					}	
+					cellIndex++;
+				}	
+				periodMapCounter++;
+				row++;
+			}
+		}
+	}
+
+
+	public PrivateCompanyDTO getBasicInfo(String entityId) {
+		// TODO Auto-generated method stub
+		return pcRepository.getBasicInfo(entityId);
+	}
+
+}

@@ -1,0 +1,116 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.7.RELEASE")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'war'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'org.springframework.boot'
+
+eclipse {
+    classpath {
+        defaultOutputDir = file('target/bin')
+    }
+}
+
+war {
+    baseName = 'CapitalMarketRest'
+}
+
+repositories {
+    mavenCentral()
+}
+
+configurations.all{
+    exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+	
+    //This dependency is used internally, and not exposed to consumers on their own compile classpath.
+    implementation 'javax.servlet:jstl'
+    implementation 'mysql:mysql-connector-java'
+    
+   	//Dependency for Enbeded tomcat
+   	implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
+   	
+	//Dependency for using external tomcat
+	//providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.0.1'
+	//providedCompile group: 'javax.servlet.jsp', name: 'jsp-api', version: '2.0'
+	//runtime 'org.springframework.boot:spring-boot-starter-tomcat'
+    
+    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.2'
+    implementation 'org.springframework.boot:spring-boot-devtools'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+  //  implementation 'org.springframework.boot:spring-boot-starter-aop '
+   	//implementation 'org.springframework.boot:spring-boot-starter-security'
+    //implementation 'org.springframework.security:spring-security-taglibs'
+    compile group: 'net.sf.dozer', name: 'dozer', version: '5.4.0'
+	compile group: 'org.apache.poi', name: 'poi', version: '3.9'
+	// https://mvnrepository.com/artifact/org.apache.xmlbeans/xmlbeans
+     compile group: 'org.apache.xmlbeans', name: 'xmlbeans', version: '2.3.0'
+     implementation 'org.apache.poi:poi-ooxml:3.9'
+	
+	compile "io.springfox:springfox-swagger2:2.9.2"
+	compile "io.springfox:springfox-swagger-ui:2.9.2"
+	compile group: 'joda-time', name: 'joda-time', version: '2.9.9'
+	// https://mvnrepository.com/artifact/org.apache.commons/commons-math3
+	compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
+	// https://mvnrepository.com/artifact/com.google.code.gson/gson
+	implementation 'com.google.code.gson:gson:2.8.5'
+	// https://mvnrepository.com/artifact/org.eclipse.birt.runtime.3_7_1/com.lowagie.text
+	//compile group: 'org.eclipse.birt.runtime.3_7_1', name: 'com.lowagie.text', version: '2.1.7'
+	// https://mvnrepository.com/artifact/com.lowagie/itext
+	compile group: 'com.lowagie', name: 'itext', version: '2.1.7'	
+	compile fileTree(dir: 'lib', includes: ['*.jar'])
+	// https://mvnrepository.com/artifact/com.itextpdf/itextpdf
+	compile group: 'com.itextpdf', name: 'itextpdf', version: '5.5.13'
+	// https://mvnrepository.com/artifact/net.sf.jasperreports/jasperreports
+	compile group: 'net.sf.jasperreports', name: 'jasperreports', version: '6.6.0'
+	
+	compile group: 'ar.com.fdvs', name: 'DynamicJasper', version: '5.1.2'
+	
+	// https://mvnrepository.com/artifact/net.sf.jasperreports/jasperreports-fonts
+	compile group: 'net.sf.jasperreports', name: 'jasperreports-fonts', version: '6.12.2'
+	
+	// https://mvnrepository.com/artifact/org.json/json
+	compile group: 'org.json', name: 'json', version: '20190722' 
+	
+	// https://mvnrepository.com/artifact/org.json/json
+	compile group: 'org.json', name: 'json', version: '20190722'
+	
+	
+	//Dependency for Caching
+	implementation 'org.springframework.boot:spring-boot-starter-cache'
+	compile group: 'org.ehcache', name:'ehcache', version:'3.2.3'
+	compile group: 'javax.cache', name: 'cache-api', version: '1.0.0'	
+	
+	// https://mvnrepository.com/artifact/org.json/json
+	compile group: 'org.json', name: 'json', version: '20190722'
+	
+	
+	//Dependency for XML parsing
+	// https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations
+	compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.9.7'
+	// https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
+	compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.9.7'
+	// https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
+	compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.7'
+	// https://mvnrepository.com/artifact/com.fasterxml.jackson.dataformat/jackson-dataformat-xml
+	compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-xml', version: '2.9.7'
+	// https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-jaxb-annotations
+	//compile group: 'com.fasterxml.jackson.module', name: 'jackson-module-jaxb-annotations', version: '2.9.7'
+	// https://mvnrepository.com/artifact/org.codehaus.woodstox/stax2-api
+	//compile group: 'org.codehaus.woodstox', name: 'stax2-api', version: '3.1.3'
+	
+}

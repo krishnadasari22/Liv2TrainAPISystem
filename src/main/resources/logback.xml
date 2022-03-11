@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+	<!-- <include resource="org/springframework/boot/logging/logback/defaults.xml"/> -->
+	
+	<property name="LOG_HOME" value="${user.home}/log" />
+	<property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] ${PID:- }  %-5level %logger{36}:%L - %msg%n"  />
+
+	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<Pattern> ${LOG_PATTERN} </Pattern>
+		</layout>
+	</appender>
+
+	<appender name="ROLLING-FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_HOME}/capitalMarket.log</file>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<Pattern> ${LOG_PATTERN} </Pattern>
+		</encoder>
+
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- rollover daily -->
+			<fileNamePattern>${LOG_HOME}/archived/capitalMarket.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+			<!-- <minIndex>1</minIndex> -->
+			
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>100MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+			
+			<!-- keep 45 days' worth of history capped at 3GB total size -->
+      		<maxHistory>45</maxHistory>
+      		<totalSizeCap>3GB</totalSizeCap>
+			
+		</rollingPolicy>
+	</appender>
+	
+	
+	<root level="error">
+		<appender-ref ref="CONSOLE" />
+		<appender-ref ref="ROLLING-FILE" />
+	</root>
+
+	<root level="info">
+		<appender-ref ref="CONSOLE" />
+		<appender-ref ref="ROLLING-FILE" />
+	</root>
+	<!-- <root level="debug">
+		<appender-ref ref="CONSOLE" />
+		<appender-ref ref="ROLLING-FILE" />
+	</root> -->
+
+	<!-- <logger name="com.televisory" level="debug" additivity="false"> 
+		<appender-ref ref="ROLLING-FILE" />
+		<appender-ref ref="CONSOLE" /> 
+	</logger> -->
+	<!-- <logger name="org.hibernate" level="trace" additivity="false">
+		<appender-ref ref="CONSOLE" />
+		<appender-ref ref="ROLLING-FILE" />
+	</logger> -->
+
+</configuration>

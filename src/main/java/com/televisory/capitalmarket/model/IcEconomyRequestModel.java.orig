@@ -1,0 +1,80 @@
+package com.televisory.capitalmarket.model;
+
+<<<<<<< HEAD
+import java.util.Date;
+import java.util.List;
+
+public class IcEconomyRequestModel {
+
+	private String fieldType;
+	
+	private String periodicity;
+	
+	private Date startDate;
+	
+	private Date endDate;
+	
+	private List<String> indicatorList;
+	
+	private List<String> countryList;
+
+	public String getFieldType() {
+		return fieldType;
+	}
+
+	public void setFieldType(String fieldType) {
+		this.fieldType = fieldType;
+	}
+
+	public String getPeriodicity() {
+		return periodicity;
+	}
+
+	public void setPeriodicity(String periodicity) {
+		this.periodicity = periodicity;
+	}
+	
+	public Date getStartDate() {
+		return startDate;
+	}
+
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+	}
+
+	public Date getEndDate() {
+		return endDate;
+	}
+
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
+	}
+
+	public List<String> getIndicatorList() {
+		return indicatorList;
+	}
+
+	public void setIndicatorList(List<String> indicatorList) {
+		this.indicatorList = indicatorList;
+	}
+
+	public List<String> getCountryList() {
+		return countryList;
+	}
+
+	public void setCountryList(List<String> countryList) {
+		this.countryList = countryList;
+	}
+
+	@Override
+	public String toString() {
+		return "IcEconomyRequestModel [fieldType=" + fieldType + ", periodicity=" + periodicity + ", startDate="
+				+ startDate + ", endDate=" + endDate + ", indicatorList=" + indicatorList + ", countryList="
+				+ countryList + "]";
+	}
+=======
+public class IcEconomyRequestModel {
+
+	//private Integer 
+>>>>>>> dc33baf77d44fc7d41c19aec498537c794dcc9d1
+}

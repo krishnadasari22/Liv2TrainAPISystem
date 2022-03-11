@@ -1,0 +1,181 @@
+package com.privatecompany.controller;
+
+import io.swagger.annotations.Api;
+<<<<<<< HEAD
+import io.swagger.annotations.ApiOperation;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+=======
+
+>>>>>>> 9b2f33663d8d6bdc80eb6eb31edd1939d4fa9840
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+<<<<<<< HEAD
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+=======
+>>>>>>> 9b2f33663d8d6bdc80eb6eb31edd1939d4fa9840
+import org.apache.log4j.Logger;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.privatecompany.dto.PrivateCompanyDTO;
+import com.privatecompany.service.PrivateCompanyService;
+import com.televisory.capitalmarket.dto.CompanyDTO;
+import com.televisory.capitalmarket.model.IndustryMonitorRequest;
+import com.televisory.capitalmarket.model.ReportIndustryMonitor;
+import com.televisory.capitalmarket.util.CMStatic;
+
+@RestController
+@Api(value = "Equity", description = "Rest API for Private Company", tags = "Private Company API")
+public class PrivateCompanyController {
+
+	Logger _log = Logger.getLogger(PrivateCompanyController.class);
+
+	@Autowired
+	PrivateCompanyService privateCompanyService;
+<<<<<<< HEAD
+
+	@SuppressWarnings("rawtypes")
+=======
+	
+	/*@SuppressWarnings("rawtypes")
+>>>>>>> 9b2f33663d8d6bdc80eb6eb31edd1939d4fa9840
+	@GetMapping("/companies")
+	public ResponseEntity<List<CompanyDTO>> getCMCompanies(
+			@RequestParam(name="searchCriteria",required=false) String searchCriteria,
+			@RequestParam(name="countryId",required=false) Integer countryIds, 
+			@RequestParam(name="encodedFlag",required=false) Integer encodedFlag,
+			@RequestParam(name="companyId",required=false) String companyIds,
+			@RequestParam(name="resultCount",required=false) Integer resultCount,
+			@RequestParam(name="excludeDuplicateFlag",required=false, defaultValue="false") Boolean excludeDuplicateFlag,
+			@RequestParam(value="userCountryList",required=false) List<String> userCountryList) {
+		_log.info("Extracting company list for countryId:"+ countryIds +", companyId: "+ companyIds +", excludeDuplicateFlag: "+ excludeDuplicateFlag +", searchCriteria:"+ searchCriteria);
+		List<CompanyDTO> companies = null;
+		try {
+			if(encodedFlag != null && searchCriteria != null && encodedFlag.equals(1)) {
+				searchCriteria = java.net.URLDecoder.decode(searchCriteria, StandardCharsets.UTF_8.name());
+				_log.info("Extracting companies like: "+ searchCriteria);
+			}
+			companies = privateCompanyService.getPrivateCompanies(searchCriteria,resultCount, countryIds, companyIds, excludeDuplicateFlag,userCountryList);
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e.getLocalizedMessage().contains("401")) {
+				_log.error(e.getMessage());		
+				return new ResponseEntity<List<CompanyDTO>>(HttpStatus.UNAUTHORIZED);
+			}
+			_log.error(e.getMessage());
+			return new ResponseEntity<List<CompanyDTO>>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		_log.info("out getCMCompanies");
+		return new ResponseEntity<List<CompanyDTO>>(companies, HttpStatus.OK);
+	}*/
+	
+	@SuppressWarnings("rawtypes")
+	@GetMapping("/basicinfo")
+	public ResponseEntity<PrivateCompanyDTO> getBasicInfo(@RequestParam(name="entityId") String entityId){
+		_log.info("get Basic Info: "+entityId);
+		PrivateCompanyDTO privateCompany = null;
+		try {
+			
+			privateCompany = privateCompanyService.getBasicInfo(entityId);
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e.getLocalizedMessage().contains("401")) {
+				_log.error(e.getMessage());		
+				return new ResponseEntity<PrivateCompanyDTO>(HttpStatus.UNAUTHORIZED);
+			}
+			_log.error(e.getMessage());
+			return new ResponseEntity<PrivateCompanyDTO>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		return new ResponseEntity<PrivateCompanyDTO>(privateCompany, HttpStatus.OK);
+	}
+
+
+	@RequestMapping(value = "downloadIndustryMonitor", method = RequestMethod.POST)
+	@ApiOperation(value = "Generate the Banking Industry page")
+	public ResponseEntity<String> downloadPrivateCompanyExcel(@RequestBody IndustryMonitorRequest industryMonitorRequest, HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+		try {
+			ReportIndustryMonitor reportIndustryMonitor = new ReportIndustryMonitor(industryMonitorRequest);
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyMM-ddHH-mmss-SSS");
+			String fsrn = dateFormat.format(new Date()) + (int)(Math.random() * 10);
+
+			String path = "/data/PRIVATE_COMPANY_DOWNLOAD";
+
+			File dirFile = new File(path);
+			if (!dirFile.exists()) {
+				if (dirFile.mkdir()) {
+					_log.info("Private Company folder created");
+				} else {
+					_log.error("Failed to create Private Company folder!!!!!");
+				}
+			}
+			String downloadedFile = path+"/"+"PrivateCompany"+fsrn+".xls";
+			File file = new File(downloadedFile); 
+			HSSFWorkbook workbook = privateCompanyService.createExcelReport(industryMonitorRequest);		
+			FileOutputStream outputStream = new FileOutputStream(file);
+			workbook.write(outputStream);
+			
+			boolean check = false;
+			if(check){
+				response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", fsrn) );
+				response.setHeader("Set-Cookie", "fileDownload=true; path=/");
+				response.setContentType("application/octet-stream");
+				response.setContentLength((int) file.length());
+				FileInputStream fileIn=new FileInputStream(file);
+				int BUFFER_SIZE = 4096;
+				int bytesRead = -1;
+
+				OutputStream outStream = response.getOutputStream();
+				byte[] bufferData = new byte[BUFFER_SIZE];
+				while ((bytesRead = fileIn.read(bufferData)) != -1) {
+					outStream.write(bufferData, 0, bytesRead);
+				}
+
+				fileIn.close();
+				outStream.close();
+				if(!CMStatic.KEEP_CM_REPORT) {
+					file.delete();
+				}
+			}else{
+				return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		} catch (Exception e) {
+			_log.error(e.getMessage());
+			if(e.getMessage().contains("No Data Found")){
+				HttpHeaders headers = new HttpHeaders();
+				headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+				return new ResponseEntity<String>(headers,HttpStatus.NO_CONTENT);
+			}
+
+			if (e.getMessage().contains("Invalid Request")) {
+				return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+			}
+			return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return null;
+	}
+
+
+
+
+}
